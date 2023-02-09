@@ -8,6 +8,7 @@ import {
   endVotingOperation,
   resetVotingOperation,
   mintNftOperation,
+  mintSwordNftOperation,
 } from "./utils/operation";
 import { fetchStorage } from "./utils/tzkt";
 import axios from "axios";
@@ -79,10 +80,27 @@ const App = () => {
     try {
       setLoading(true);
       let _mint = {
-        data_bytes: "05070707070a0000001600008f142637d0360ef8016effc36706f1e10d57866a000a0000",
-        sig: "edsigtbMEnu61ZG4Dds7ndtGhbtaM3p2DRWfHEVQX3h6K8kbmiiG2pLWgNSgQng78rrjSpnR4ADAMRckbkjDJNXDuy2j4AgAxMt",
+        data_bytes:
+          "05070707070a000000160000fadcd216de7817afb85f7f7a39510e2ed224303200a4010000",
+        sig: "edsigtYvaBbcYUgKnEHFD4edb3cQ5HiSLrywrto2vnzcKz2tT9PQPiYj3xa6KHL7Wqan5MfkdhAkNqLJJTXLHjRRtXYttZ2JunK",
       };
       await mintNftOperation(_mint);
+      alert("transaction successful");
+    } catch (err) {
+      console.log(err);
+      alert(err.message);
+    }
+  };
+
+  const mintSwordNFT = async () => {
+    try {
+      setLoading(true);
+      let _mint = {
+        data_bytes:
+          "0507070a000000160000fadcd216de7817afb85f7f7a39510e2ed224303207070099050100000042697066733a2f2f6261666b726569656562626e7234786d70646a357564336576777377626e707071367376337464656c62773563796c646a66717a37366675623379",
+        sig: "edsigtcJ9JLme97KaeDzdMnfLDohf6E4acqFJg4dJ4MYV1gXstWwx1aCVZqNT3JFvQrvNE6ibTfUkm3s8jRrK4FhzLcPTDo3jdH",
+      };
+      await mintSwordNftOperation(_mint);
       alert("transaction successful");
     } catch (err) {
       console.log(err);
@@ -99,7 +117,7 @@ const App = () => {
     };
     const res = await axios.post(
       "http://localhost:5001/tantest-35456/us-central1/widgets/create_sign",
-      data
+      data,
     );
     console.log(res);
   };
@@ -110,6 +128,7 @@ const App = () => {
       <div>
         <h1>Mint</h1>
         <button onClick={mintNft}>Mint NFT</button>
+        <button onClick={mintSwordNFT}>Mint Sword NFT</button>
         <button onClick={create_sign}>Create Sign</button>
       </div>
       <div>
