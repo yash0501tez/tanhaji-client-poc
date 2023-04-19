@@ -20,3 +20,7 @@ export const getAccount = async () => {
     return "";
   }
 };
+
+export const clearAccount = async () => {
+  await wallet.clearActiveAccount();
+};

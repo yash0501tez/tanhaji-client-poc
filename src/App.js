@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
+import { bytes2Char } from "@taquito/utils";
 
 // Components
 import Navbar from "./components/Navbar";
 import {
-  startVotingOperation,
-  voteCandidateOperation,
-  endVotingOperation,
-  resetVotingOperation,
+  // startVotingOperation,
+  // voteCandidateOperation,
+  // endVotingOperation,
+  // resetVotingOperation,
   mintNftOperation,
   mintSwordNftOperation,
 } from "./utils/operation";
@@ -16,65 +17,9 @@ import axios from "axios";
 const App = () => {
   // Players holding lottery tickets
   const [status, setStatus] = useState("");
-  const [voteCountA, setVoteCountA] = useState(0);
-  const [voteCountB, setVoteCountB] = useState(0);
+  // const [voteCountA, setVoteCountA] = useState(0);
+  // const [voteCountB, setVoteCountB] = useState(0);
   const [loading, setLoading] = useState(false);
-
-  // Set players and tickets remaining
-  // useEffect(() => {
-  //   // TODO 9 - Fetch players and tickets remaining from storage
-  //   (async () => {
-  //     const storage = await fetchStorage();
-  //     // console.log(storage);
-  //     setStatus(Object.values(storage.status));
-  //     setVoteCountA(Object.values(storage.candidate_A_votes));
-  //     setVoteCountB(Object.values(storage.candidate_B_votes));
-  //   })();
-  // }, [status, voteCountA, voteCountB]);
-
-  // TODO 7.a - Complete onBuyTicket function
-  const startVoting = async () => {
-    try {
-      setLoading(true);
-      await startVotingOperation();
-      alert("transaction successful");
-    } catch (err) {
-      alert(err.message);
-    }
-    setLoading(false);
-  };
-
-  const voteFor = async (candidate) => {
-    try {
-      setLoading(true);
-      await voteCandidateOperation(candidate);
-      alert("transaction successful");
-    } catch (err) {
-      alert(err.message);
-    }
-    setLoading(false);
-  };
-
-  const endVoting = async () => {
-    try {
-      setLoading(true);
-      await endVotingOperation();
-      alert("transaction successful");
-    } catch (err) {
-      alert(err.message);
-    }
-    setLoading(false);
-  };
-
-  const resetVoting = async () => {
-    try {
-      setLoading(true);
-      await resetVotingOperation();
-      alert("transaction successful");
-    } catch (err) {
-      alert(err.message);
-    }
-  };
 
   const mintNft = async () => {
     try {
@@ -97,8 +42,8 @@ const App = () => {
       setLoading(true);
       let _mint = {
         data_bytes:
-          "0507070a000000160000fadcd216de7817afb85f7f7a39510e2ed224303207070099050100000042697066733a2f2f6261666b726569656562626e7234786d70646a357564336576777377626e707071367376337464656c62773563796c646a66717a37366675623379",
-        sig: "edsigtcJ9JLme97KaeDzdMnfLDohf6E4acqFJg4dJ4MYV1gXstWwx1aCVZqNT3JFvQrvNE6ibTfUkm3s8jRrK4FhzLcPTDo3jdH",
+          "0507070a000000160000fe0aadebf396841125aa97142d457cd9ef87c96d07070000010000005868747470733a2f2f6261666b72656965636e766f79776375637767753533706d6c7964666a7765656c616c62686d75696864687876786a6d633774666174796f7061692e697066732e6e667473746f726167652e6c696e6b",
+        sig: "edsigu51FJ56TesbixUsJ9HE639Pbb7eKmps2n7Ne9dDaspSY4eQ8m139zaYXAEyjU1FLgfDkLYLuZh1nDcZG6foVCDxAfzLq7F",
       };
       await mintSwordNftOperation(_mint);
       alert("transaction successful");
@@ -122,38 +67,72 @@ const App = () => {
     console.log(res);
   };
 
+  const getChainData = async () => {
+    try {
+      const res = await axios.get(
+        "https://api.ghostnet.tzkt.io/v1/tokens/balances?account=tz1YgZTYk3pE3dGPpsDBdriRpLGrkBPG8suF&contract=KT1HJwf9aKZC5jvCPrAqYFHgg3onme7d9WNk",
+      );
+      for (let i = 0; i < res.data.length; i++) {
+        console.log(res.data[i].token);
+        // console.log(
+        //   `https://api.ghostnet.tzkt.io/v1/contracts/KT1HJwf9aKZC5jvCPrAqYFHgg3onme7d9WNk/bigmaps/token_metadata/keys?value.token_id=${res.data[i].token.tokenId}`,
+        // );
+        const token_data = await axios.get(
+          `https://api.ghostnet.tzkt.io/v1/contracts/KT1HJwf9aKZC5jvCPrAqYFHgg3onme7d9WNk/bigmaps/token_metadata/keys?value.token_id=${res.data[i].token.tokenId}`,
+        );
+
+        // console.log(
+        //   bytes2Char(token_data.data[0].value.token_info[""])
+        //     .split("//")
+        //     .at(-1),
+        // );
+
+        const ipfs_cid = bytes2Char(token_data.data[0].value.token_info[""])
+          .split("//")
+          .at(-1);
+
+        console.log(ipfs_cid);
+
+        // https://bafybeienao42su3rh2epnbwev5rvijbolxtysjg46qwztu76daq7grfn2u.ipfs.dweb.link/
+
+        // const token_metadata = await axios.get(
+        //   `https://${ipfs_cid}.ipfs.dweb.link/`,
+        // );
+
+        const token_metadata = await axios.get(
+          "https://gateway.pinata.cloud/ipfs/QmXq7VM5Qxbsh5up4NWA5HBfoJNeoc75eE4MT4p42BNKLx?_gl=1*1hgzzvk*_ga*ODYzODQ4NDQxLjE2NzYwMjI5ODU.*_ga_5RMPXG14TE*MTY3NjEwNzU1Mi4zLjEuMTY3NjEwOTcyMC42MC4wLjA.",
+        );
+
+        console.log(token_metadata);
+      }
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+    // const res = await axios.get(
+    //   "https://api.ghostnet.tzkt.io/v1/tokens/balances?account=tz1YgZTYk3pE3dGPpsDBdriRpLGrkBPG8suF&contract=KT1HJwf9aKZC5jvCPrAqYFHgg3onme7d9WNk",
+    // );
+
+    // console.log(res);
+  };
+
   return (
     <div className="h-100">
       <Navbar />
       <div>
+        <div className="container">
+          <img src="https://i.imgur.com/6YQ9Z9r.png" alt="logo" />
+          <img src="https://i.imgur.com/6YQ9Z9r.png" alt="logo" />
+          <img src="https://i.imgur.com/6YQ9Z9r.png" alt="logo" />
+          <img src="https://i.imgur.com/6YQ9Z9r.png" alt="logo" />
+        </div>
         <h1>Mint</h1>
         <button onClick={mintNft}>Mint NFT</button>
         <button onClick={mintSwordNFT}>Mint Sword NFT</button>
         <button onClick={create_sign}>Create Sign</button>
       </div>
-      <div>
-        <p className="m-5 p-5">Status = {status}</p>
-        <p>Vote Count A = {voteCountA}</p>
-        <p>Vote Count B = {voteCountB}</p>
-        <br />
-        <button onClick={startVoting}>
-          {loading ? "Loading..." : "Start Voting"}
-        </button>
-        <br />
-        <button onClick={() => voteFor("A")}>
-          {loading ? "Loading..." : "Vote For A"}
-        </button>
-        <button onClick={() => voteFor("B")}>
-          {loading ? "Loading..." : "Vote For B"}
-        </button>
-        <br />
-        <button onClick={endVoting}>
-          {loading ? "Loading..." : "End Voting"}
-        </button>
-        <br />
-        <button onClick={resetVoting}>
-          {loading ? "Loading..." : "Reset Voting"}
-        </button>
+      <div className="container">
+        <button onClick={getChainData}>Get Chain Data</button>
       </div>
     </div>
   );

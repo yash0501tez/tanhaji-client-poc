@@ -66,7 +66,7 @@ export const mintNftOperation = async (_mint) => {
 export const mintSwordNftOperation = async (_mint) => {
   try {
     const contractInstance = await tezos.wallet.at(
-      "KT1HJwf9aKZC5jvCPrAqYFHgg3onme7d9WNk",
+      "KT1JQdqmEsmUPm8qwiBJpD3ntYctbiHHxWpU",
     );
     const op = await contractInstance.methods
       .mint(_mint.data_bytes, _mint.sig)
